@@ -1,0 +1,13 @@
+services:
+  golang:
+    build:
+      context: ..
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    container_name: llm-craft.go
+    env_file:
+      - .env
+    volumes:
+      - ./docker/.data/app:/app
+    ports:
+      - "8080:8080"
