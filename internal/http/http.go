@@ -19,7 +19,7 @@ type Server struct {
 }
 
 type Service interface {
-	Generate(ctx context.Context, el1, el2 string) (entity.Element, error)
+	Generate(ctx context.Context, el1, el2 string) (entity.Element, bool, error)
 }
 
 func New(s Service) *Server {
@@ -50,6 +50,7 @@ func (s *Server) Run(ctx context.Context, addr string) error {
 	}()
 
 	<-stop
+	log.Println("Shutting down server...")
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()

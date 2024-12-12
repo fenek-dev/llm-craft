@@ -28,7 +28,7 @@ func main() {
 		panic(err)
 	}
 
-	llm := ollama.New(url, http.DefaultClient)
+	llm := ollama.New(url, http.DefaultClient, ollama.WithModel("llama3.2"))
 
 	if err = llm.Ping(ctx); err != nil {
 		panic(err)

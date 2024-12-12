@@ -2,24 +2,30 @@ package ollama
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/fenek-dev/llm-craft/internal/entity"
 	"github.com/ollama/ollama/api"
 )
 
 type Ollama struct {
 	client *api.Client
 	model  string
+	format []byte
+	prompt string
 }
 
 func New(base *url.URL, http *http.Client, opts ...Option) *Ollama {
 	client := api.NewClient(base, http)
-
+	format, _ := json.Marshal(entity.Element{})
 	ollama := &Ollama{
 		client: client,
 		model:  "llama3.2",
+		format: format,
+		prompt: prompt,
 	}
 
 	for _, opt := range opts {

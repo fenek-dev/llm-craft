@@ -5,19 +5,31 @@ import (
 	"net/http"
 )
 
+type Response struct {
+	Result string `json:"result"`
+	Emoji  string `json:"emoji"`
+	IsNew  bool   `json:"isNew"`
+}
+
 func (s *Server) HandleGenerate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	el1 := r.URL.Query().Get("first")
 	el2 := r.URL.Query().Get("second")
 
-	result, err := s.s.Generate(r.Context(), el1, el2)
+	result, isNew, err := s.s.Generate(r.Context(), el1, el2)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if err = json.NewEncoder(w).Encode(result); err != nil {
+	res := Response{
+		Result: result.Name,
+		Emoji:  result.Emoji,
+		IsNew:  isNew,
+	}
+
+	if err = json.NewEncoder(w).Encode(res); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

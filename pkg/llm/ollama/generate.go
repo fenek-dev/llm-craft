@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/fenek-dev/llm-craft/internal/entity"
 	"github.com/ollama/ollama/api"
@@ -12,42 +13,17 @@ import (
 
 func (o *Ollama) Generate(ctx context.Context, el1, el2 string) (entity.Element, error) {
 
-	b, err := json.Marshal(entity.Element{})
-	if err != nil {
-		return entity.Element{}, err
-	}
-
-	prompt := fmt.Sprintf(`
-	You are an intelligent assistant that helps combine elements in a crafting system.
-	Combinantion result should be logical and make sense.
-	
-	Here is how combinations work:
-	- Two elements can combine to form a new element. For example, "fire" + "water" = "steam".
-	- Always response with an emoji that represents the result.
-	
-	Your task:
-	1. Take two elements and combine them into a new element.
-	3. Return the response in JSON format, with the following structure:
-	   {
-		 "name": "<name>",
-		 "emoji": "<emoji>",
-	   }
-	
-	Now, combine the following elements:
-	- Element 1: %s
-	- Element 2: %s
-	
-	Provide your response in the requested JSON format.
-	YOU MUST ALWAYS GENERATE EMOJI.
-	`, el1, el2)
-
 	req := &api.GenerateRequest{
 		Model:  o.model,
-		Prompt: prompt,
-		Format: b,
+		Prompt: fmt.Sprintf("%s + %s = ?", el1, el2),
+		System: o.prompt,
 		Stream: new(bool),
+		Format: o.format,
+		KeepAlive: &api.Duration{
+			Duration: time.Minute,
+		},
 		Options: map[string]interface{}{
-			"temperature": 0.2,
+			"temperature": 0,
 		},
 	}
 
@@ -64,13 +40,17 @@ func (o *Ollama) Generate(ctx context.Context, el1, el2 string) (entity.Element,
 		c <- result
 		return nil
 	}
-	err = o.client.Generate(ctx, req, respFunc)
+	err := o.client.Generate(ctx, req, respFunc)
 	if err != nil {
-		log.Fatal(err)
+		return entity.Element{}, err
 	}
 
-	r := <-c
-	fmt.Println("r", r)
+	select {
+	case <-ctx.Done():
+		return entity.Element{}, ctx.Err()
+	case r := <-c:
+		log.Println(el1, "+", el2, "=", r.Name, r.Emoji)
+		return r, nil
+	}
 
-	return r, nil
 }

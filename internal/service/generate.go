@@ -7,20 +7,20 @@ import (
 	"github.com/fenek-dev/sdk/pkg/logger"
 )
 
-func (s *Service) Generate(ctx context.Context, el1, el2 string) (entity.Element, error) {
+func (s *Service) Generate(ctx context.Context, el1, el2 string) (entity.Element, bool, error) {
 	result, err := s.cache.Get(ctx, el1, el2)
 	if err == nil {
-		return result, nil
+		return result, false, nil
 	}
 
 	result, err = s.llm.Generate(ctx, el1, el2)
 
 	if err != nil {
-		return entity.Element{}, err
+		return entity.Element{}, false, err
 	}
 
 	if result.Name == "" {
-		return entity.Element{}, nil
+		return entity.Element{}, false, nil
 	}
 
 	err = s.cache.Set(ctx, el1, el2, result)
@@ -28,5 +28,5 @@ func (s *Service) Generate(ctx context.Context, el1, el2 string) (entity.Element
 		s.log.Error("failed to cache result", logger.Err(err))
 	}
 
-	return result, nil
+	return result, true, nil
 }
