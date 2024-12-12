@@ -10,4 +10,4 @@ services:
       REDIS_PORT: 6379
       REDIS_DATABASES: 1
     volumes:
-      - ./docker/.data/redis:/data
+      - ./.data/redis:/data

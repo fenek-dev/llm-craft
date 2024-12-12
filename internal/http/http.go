@@ -31,6 +31,7 @@ func New(s Service) *Server {
 
 func (s *Server) InitRoutes() {
 	s.mux.HandleFunc("GET /pair", s.HandleGenerate)
+	s.mux.HandleFunc("GET /start", s.HandleStart)
 }
 
 func (s *Server) Run(ctx context.Context, addr string) error {
