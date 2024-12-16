@@ -1,7 +1,8 @@
 import { Draggable } from "@/components/draggable";
+import { Button } from "@/components/ui/button";
 import { generateRandomId } from "@/lib/id";
 import { useElements } from "@/store/context";
-import { ElementWithBoundaries, ElementWithPosition } from "@/types";
+import { ElementWithPosition } from "@/types";
 import Sidebar from "@/widgets/sidebar";
 import { useState } from "react";
 
@@ -16,13 +17,11 @@ const checkOverlap = (rect1: DOMRect, rect2: DOMRect) => {
 
 function Main() {
   const [elementsOnBoard, setElements] = useState<ElementWithPosition[]>([]);
-  const { addElement } = useElements();
+  const { addElement, clearElements } = useElements();
 
   const onDrop = async (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const element = JSON.parse(
-      event.dataTransfer.getData("element")
-    ) as ElementWithBoundaries;
+    const element = JSON.parse(event.dataTransfer.getData("element"));
     const x = event.clientX - element.bounds.width / 2;
     const y = event.clientY - element.bounds.height / 2;
 
@@ -49,7 +48,7 @@ function Main() {
         continue;
       }
 
-      if (checkOverlap(domRect1, domRect2) && "id" in element) {
+      if (checkOverlap(domRect1, domRect2)) {
         try {
           const response = await fetch(
             `http://localhost:8080/pair?first=${elementOnBoard.name}&second=${element.name}`
@@ -120,6 +119,14 @@ function Main() {
             onDragEnd={cleanup(element.id)}
           />
         ))}
+        <div className="absolute bottom-4 right-4 flex gap-4">
+          <Button variant="outline" onClick={() => setElements([])}>
+            Clear Board
+          </Button>
+          <Button variant="outline" onClick={clearElements}>
+            Clear All Elements
+          </Button>
+        </div>
       </div>
       <Sidebar />
     </main>

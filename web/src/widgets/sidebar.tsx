@@ -1,4 +1,3 @@
-import { Draggable } from "@/components/draggable";
 import { Button } from "@/components/ui/button";
 import { useElements } from "@/store/context";
 import { ElementWithBoundaries } from "@/types";

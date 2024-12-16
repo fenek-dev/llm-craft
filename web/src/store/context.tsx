@@ -32,8 +32,6 @@ export const ElementsProvider: React.FC<{ children: React.ReactNode }> = ({
   });
 
   useEffect(() => {
-    console.log("elements", elements);
-
     localStorage.setItem("elements", JSON.stringify(elements));
   }, [elements]);
 
