@@ -1,9 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import {Button} from "@/components/ui/button.tsx";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <div className="text-4xl">Hello</div>
+    <Button>Hello</Button>
   </StrictMode>,
 )
