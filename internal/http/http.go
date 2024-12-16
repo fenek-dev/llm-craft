@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/fenek-dev/llm-craft/internal/entity"
+	"github.com/rs/cors"
 )
 
 type Server struct {
@@ -37,7 +38,7 @@ func (s *Server) InitRoutes() {
 func (s *Server) Run(ctx context.Context, addr string) error {
 	srv := &http.Server{
 		Addr:    addr,
-		Handler: s.mux,
+		Handler: cors.Default().Handler(s.mux),
 	}
 
 	stop := make(chan os.Signal, 1)
